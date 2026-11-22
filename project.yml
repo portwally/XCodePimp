@@ -1,0 +1,56 @@
+name: XCodePimp
+options:
+  bundleIdPrefix: com.portwally
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEAD_CODE_STRIPPING: YES
+targets:
+  XCodePimp:
+    type: application
+    platform: macOS
+    sources: [XCodePimp]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.portwally.XCodePimp
+        GENERATE_INFOPLIST_FILE: YES
+        ENABLE_HARDENED_RUNTIME: YES
+        ENABLE_APP_SANDBOX: NO
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.developer-tools
+        INFOPLIST_KEY_CFBundleDisplayName: XcodePimp
+        INFOPLIST_KEY_NSDocumentsFolderUsageDescription: XcodePimp looks for build folders inside the project folders you choose.
+        INFOPLIST_KEY_NSDesktopFolderUsageDescription: XcodePimp looks for build folders inside the project folders you choose.
+        INFOPLIST_KEY_NSDownloadsFolderUsageDescription: XcodePimp looks for build folders inside the project folders you choose.
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  XCodePimpTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [XCodePimpTests]
+    dependencies:
+      - target: XCodePimp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.portwally.XCodePimpTests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_IDENTITY: "-"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/XCodePimp.app/Contents/MacOS/XCodePimp"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+schemes:
+  XCodePimp:
+    build:
+      targets:
+        XCodePimp: all
+        XCodePimpTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets: [XCodePimpTests]
