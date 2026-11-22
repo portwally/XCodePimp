@@ -118,3 +118,7 @@ Design/           icon script, icon master, screenshot
 ## Disclaimer
 
 XcodePimp deletes files. It is built to be careful, but use it at your own risk and keep backups of anything you cannot regenerate — archives in particular.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
