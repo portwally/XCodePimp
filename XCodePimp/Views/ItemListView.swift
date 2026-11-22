@@ -111,7 +111,9 @@ struct ItemListView: View {
     private var table: some View {
         Table(sorted, selection: $highlighted, sortOrder: $sortOrder) {
             TableColumn("") { item in
-                CheckCell(item: item)
+                // Table cells live in their own hosting views; hand them the model directly
+                // instead of relying on the environment, which a row can lose while it is removed.
+                CheckCell(item: item, model: model)
             }
             .width(22)
 
@@ -170,8 +172,8 @@ struct ItemListView: View {
 }
 
 private struct CheckCell: View {
-    @Environment(AppModel.self) private var model
     let item: CleanableItem
+    let model: AppModel
 
     var body: some View {
         Toggle("Select \(item.title)", isOn: Binding(

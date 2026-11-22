@@ -234,6 +234,8 @@ final class AppModel {
                 date: .now, title: outcome.title, category: outcome.category, size: outcome.size,
                 success: outcome.success, dryRun: outcome.dryRun, message: outcome.message
             ), at: 0)
+            // Saved per item, so the record survives even if the app dies mid-run.
+            saveHistory()
 
             if outcome.success {
                 touched.insert(item.category)

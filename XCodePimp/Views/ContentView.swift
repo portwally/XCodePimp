@@ -26,6 +26,7 @@ struct ContentView: View {
         }
         .sheet(item: $model.pendingClean) { request in
             ConfirmSheet(request: request)
+                .environment(model)
         }
         .alert("XcodePimp", isPresented: Binding(
             get: { model.resultMessage != nil },
