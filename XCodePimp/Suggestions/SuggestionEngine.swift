@@ -12,7 +12,11 @@ enum SuggestionEngine {
             switch item.category {
             case .derivedData:
                 if item.flags.contains(.orphaned) {
-                    result[item.id] = "The project no longer exists"
+                    // The detail is the project path this build data was made from.
+                    let location = (item.detail as NSString).abbreviatingWithTildeInPath
+                    result[item.id] = item.flags.contains(.duplicate)
+                        ? "Built from a copy that was deleted: \(location)"
+                        : "The project no longer exists: \(location)"
                 } else if !item.flags.contains(.sharedCache), let used = item.lastUsed, used < staleCutoff {
                     result[item.id] = "Not opened for \(staleDays) days"
                 }

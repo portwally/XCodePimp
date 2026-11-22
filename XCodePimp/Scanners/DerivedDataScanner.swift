@@ -17,6 +17,20 @@ struct DerivedDataScanner: CleanupScanner {
     }
 
     static func items(in root: URL) -> [CleanableItem] {
+        var items = scanFolders(in: root)
+
+        // A project often has several folders here: one per location it was ever opened from
+        // (a git worktree, a duplicate, a moved folder). Say so when the live project still exists,
+        // otherwise "project gone" reads as if the real project were missing.
+        let liveNames = Set(items.filter { !$0.flags.contains(.orphaned) && !$0.flags.contains(.sharedCache) }.map(\.title))
+        for index in items.indices where items[index].flags.contains(.orphaned) && liveNames.contains(items[index].title) {
+            items[index].badge = "Deleted copy"
+            items[index].flags.insert(.duplicate)
+        }
+        return items
+    }
+
+    private static func scanFolders(in root: URL) -> [CleanableItem] {
         FS.children(of: root).compactMap { folder -> CleanableItem? in
             guard FS.isDirectory(folder), !FS.isSymlink(folder) else { return nil }
             let name = folder.lastPathComponent

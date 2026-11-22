@@ -39,6 +39,30 @@ import Testing
         }
     }
 
+    @Test func orphanOfALiveProjectIsLabelledAsDeletedCopy() throws {
+        let dd = fx.paths.derivedData
+        let project = try fx.makeDir(fx.home.appending(path: "Code/App/App.xcodeproj"))
+        let worktree = fx.home.appending(path: "Code/App/.claude/worktrees/x/App.xcodeproj")
+        try fx.writePlist(["WorkspacePath": project.path], to: dd.appending(path: "App-ddovwvcdrqvnwmflolceukbairdh/info.plist"))
+        try fx.writePlist(["WorkspacePath": worktree.path], to: dd.appending(path: "App-hatekqnpchazhsfzlxlshupjegfh/info.plist"))
+        try fx.writePlist(["WorkspacePath": fx.home.appending(path: "Code/Gone/Gone.xcodeproj").path],
+                          to: dd.appending(path: "Gone-atumlyixvvdquodyhjafjhfvaqzn/info.plist"))
+
+        let items = DerivedDataScanner.items(in: dd)
+        let live = try #require(items.first { $0.detail == project.path })
+        let copy = try #require(items.first { $0.detail == worktree.path })
+        let gone = try #require(items.first { $0.title == "Gone" })
+        #expect(live.flags.isEmpty && live.badge == nil)
+        #expect(copy.flags == [.orphaned, .duplicate] && copy.badge == "Deleted copy")
+        #expect(gone.flags == [.orphaned] && gone.badge == "Project gone")
+
+        let reasons = SuggestionEngine.suggestions(for: items, staleDays: 30)
+        #expect(reasons[live.id] == nil)
+        #expect(reasons[copy.id]?.hasPrefix("Built from a copy that was deleted:") == true)
+        #expect(reasons[copy.id]?.contains("worktrees/x") == true)
+        #expect(reasons[gone.id]?.hasPrefix("The project no longer exists:") == true)
+    }
+
     @Test func projectNameFallsBackToFolderName() {
         #expect(DerivedDataScanner.projectName(folder: "Alerta-ddovwvcdrqvnwmflolceukbairdh", workspace: nil) == "Alerta")
         #expect(DerivedDataScanner.projectName(folder: "My-App-ddovwvcdrqvnwmflolceukbairdh", workspace: nil) == "My-App")
